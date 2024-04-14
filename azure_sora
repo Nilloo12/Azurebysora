@@ -1,0 +1,582 @@
+--[[
+    >rinichi >> did 50% of the work
+    >weda >> did 50% of the work
+
+    >fixed by desktop
+]]
+--[[
+if getgenv().azureloaded then
+    return
+end
+
+getgenv().azureloaded = true]]
+
+local loadtick = tick()
+
+repeat 
+    wait()
+until game:IsLoaded()
+
+game:GetService("StarterGui"):SetCore("SendNotification",{Title = "azure_sora (temporary notif)",Text = "loading",Duration = 3.6})
+
+local gamerawmetatable = getrawmetatable(game)
+setreadonly(gamerawmetatable, false)
+
+old__namecall1 = gamerawmetatable.__namecall;gamerawmetatable.__namecall = newcclosure(function(self, ...)
+    local args = {...}
+    if tostring(args[1]) == "TeleportDetect" then
+        return
+    elseif tostring(args[1]) == "CHECKER_1" then
+        return
+    elseif tostring(args[1]) == "CHECKER" then
+        return
+    elseif tostring(args[1]) == "GUI_CHECK" then
+        return
+    elseif tostring(args[1]) == "OneMoreTime" then
+        return
+    elseif tostring(args[1]) == "checkingSPEED" then
+        return
+    elseif tostring(args[1]) == "BANREMOTE" then
+        return
+    elseif tostring(args[1]) == "PERMAIDBAN" then
+        return
+    elseif tostring(args[1]) == "KICKREMOTE" then
+        return
+    elseif tostring(args[1]) == "BR_KICKPC" then
+        return
+    elseif tostring(args[1]) == "BR_KICKMOBILE" then
+        return
+    end
+    return old__namecall1(self, ...)
+end)
+
+function retlibrary()
+
+-- // Variables
+local ws = game:GetService("Workspace")
+local uis = game:GetService("UserInputService")
+local rs = game:GetService("RunService")
+local hs = game:GetService("HttpService")
+local plrs = game:GetService("Players")
+local stats = game:GetService("Stats")
+-- UI Variables
+getgenv().library = {
+    drawings = {},
+    hidden = {},
+    connections = {},
+    pointers = {},
+    began = {},
+    changed = {},
+    ended = {},
+    colors = {},
+    folders = {
+        main = "azure",
+        assets = "azure/assets",
+        configs = "azure/configs"
+    },
+    shared = {
+        initialized = false,
+        fps = 0,
+        ping = 0
+    }
+}
+--
+for i,v in pairs(library.folders) do
+    makefolder(v)
+end
+--
+local utility = {}
+local pages = {}
+local sections = {}
+local theme = {
+    accent = Color3.fromRGB(168,122,207),
+    lightcontrast = Color3.fromRGB(30, 30, 30),
+    darkcontrast = Color3.fromRGB(25, 25, 25),
+    outline = Color3.fromRGB(0, 0, 0),
+    inline = Color3.fromRGB(50, 50, 50),
+    textcolor = Color3.fromRGB(255, 255, 255),
+    textborder = Color3.fromRGB(0, 0, 0),
+    indevcolor = Color3.fromRGB(164, 219, 232),
+    font = Drawing.Fonts.Plex,
+    textsize = 13
+}
+-- // Utility Functions
+do
+    function utility:Size(xScale,xOffset,yScale,yOffset,instance)
+        if instance then
+            local x = xScale*instance.Size.x+xOffset
+            local y = yScale*instance.Size.y+yOffset
+            --
+            return Vector2.new(x,y)
+        else
+            local vx,vy = ws.CurrentCamera.ViewportSize.x,ws.CurrentCamera.ViewportSize.y
+            --
+            local x = xScale*vx+xOffset
+            local y = yScale*vy+yOffset
+            --
+            return Vector2.new(x,y)
+        end
+    end
+    --
+    function utility:Position(xScale,xOffset,yScale,yOffset,instance)
+        if instance then
+            local x = instance.Position.x+xScale*instance.Size.x+xOffset
+            local y = instance.Position.y+yScale*instance.Size.y+yOffset
+            --
+            return Vector2.new(x,y)
+        else
+            local vx,vy = ws.CurrentCamera.ViewportSize.x,ws.CurrentCamera.ViewportSize.y
+            --
+            local x = xScale*vx+xOffset
+            local y = yScale*vy+yOffset
+            --
+            return Vector2.new(x,y)
+        end
+    end
+    --
+    function utility:CreateInstance(instanceType, properties)
+        local instance = Instance.new(instanceType)
+        if type(properties) == "table" then
+            for property, value in next, properties do
+                instance[property] = value
+            end
+        end
+        return instance
+    end
+    --
+	function utility:Create(instanceType, instanceOffset, instanceProperties, instanceParent)
+        local instanceType = instanceType or "Frame"
+        local instanceOffset = instanceOffset or {Vector2.new(0,0)}
+        local instanceProperties = instanceProperties or {}
+        local instanceHidden = false
+        local instance = nil
+        --
+		if instanceType == "Frame" or instanceType == "frame" then
+            local frame = Drawing.new("Square")
+            frame.Visible = true
+            frame.Filled = true
+            frame.Thickness = 0
+            frame.Color = Color3.fromRGB(255,255,255)
+            frame.Size = Vector2.new(100,100)
+            frame.Position = Vector2.new(0,0)
+            frame.ZIndex = 1000
+            frame.Transparency = library.shared.initialized and 1 or 0
+            instance = frame
+        elseif instanceType == "TextLabel" or instanceType == "textlabel" then
+            local text = Drawing.new("Text")
+            text.Font = 3
+            text.Visible = true
+            text.Outline = true
+            text.Center = false
+            text.Color = Color3.fromRGB(255,255,255)
+            text.ZIndex = 1000
+            text.Transparency = library.shared.initialized and 1 or 0
+            instance = text
+        elseif instanceType == "Triangle" or instanceType == "triangle" then
+            local frame = Drawing.new("Triangle")
+            frame.Visible = true
+            frame.Filled = true
+            frame.Thickness = 0
+            frame.Color = Color3.fromRGB(255,255,255)
+            frame.ZIndex = 1000
+            frame.Transparency = library.shared.initialized and 1 or 0
+            instance = frame
+        elseif instanceType == "Image" or instanceType == "image" then
+            local image = Drawing.new("Image")
+            image.Size = Vector2.new(12,19)
+            image.Position = Vector2.new(0,0)
+            image.Visible = true
+            image.ZIndex = 1000
+            image.Transparency = library.shared.initialized and 1 or 0
+            instance = image
+        elseif instanceType == "Circle" or instanceType == "circle" then
+            local circle = Drawing.new("Circle")
+            circle.Visible = false
+            circle.Color = Color3.fromRGB(255, 0, 0)
+            circle.Thickness = 1
+            circle.NumSides = 30
+            circle.Filled = true
+            circle.Transparency = 1
+            circle.ZIndex = 1000
+            circle.Radius = 50
+            circle.Transparency = library.shared.initialized and 1 or 0
+            instance = circle
+        elseif instanceType == "Quad" or instanceType == "quad" then
+            local quad = Drawing.new("Quad")
+            quad.Visible = false
+            quad.Color = Color3.fromRGB(255, 255, 255)
+            quad.Thickness = 1.5
+            quad.Transparency = 1
+            quad.ZIndex = 1000
+            quad.Filled = false
+            quad.Transparency = library.shared.initialized and 1 or 0
+            instance = quad
+        elseif instanceType == "Line" or instanceType == "line" then
+            local line = Drawing.new("Line")
+            line.Visible = false
+            line.Color = Color3.fromRGB(255, 255, 255)
+            line.Thickness = 1.5
+            line.Transparency = 1
+            line.Thickness = 1.5
+            line.ZIndex = 1000
+            line.Transparency = library.shared.initialized and 1 or 0
+            instance = line
+        end
+        --
+        if instance then
+            for i, v in pairs(instanceProperties) do
+                if (i == "Hidden" or i == "hidden") then
+                    instanceHidden = v
+                else
+                    if library.shared.initialized then
+                        instance[i] = v
+                    elseif i ~= "Transparency" then
+                        instance[i] = v
+                    end
+                end
+                --[[if typeof(v) == "Color3" then
+                    local found_theme = utility:Find(theme, v)
+                    if found_theme then
+                        themes[found_theme] = themes[found_theme] or {}
+                        themes[found_theme][i] = themes[found_theme][i]
+                        table.insert(themes[found_theme][i], instance)
+                    end
+                end]]
+            end
+            --
+            if not instanceHidden then
+                library.drawings[#library.drawings + 1] = {instance, instanceOffset, instanceProperties["Transparency"] or 1}
+            else
+                library.hidden[#library.hidden + 1] = {instance, instanceOffset, instanceProperties["Transparency"] or 1}
+            end
+            --
+            if instanceParent then
+                instanceParent[#instanceParent + 1] = instance
+            end
+            --
+            return instance
+        end
+	end
+    --
+    function utility:UpdateOffset(instance, instanceOffset)
+        for i,v in pairs(library.drawings) do
+            if v[1] == instance then
+                v[2] = instanceOffset
+                return
+            end
+        end
+    end
+    --
+    function utility:UpdateTransparency(instance, instanceTransparency)
+        for i,v in pairs(library.drawings) do
+            if v[1] == instance then
+                v[3] = instanceTransparency
+                return
+            end
+        end
+    end
+    --
+    function utility:Remove(instance, hidden)
+        library.colors[instance] = nil
+        --
+        local ind = 0
+        --
+        for i,v in pairs(hidden and library.hidden or library.drawings) do
+            if v[1] == instance then
+                v[1] = nil
+                v[2] = nil
+                table.remove(hidden and library.hidden or library.drawings, i)
+                break
+            end
+        end
+        instance:Remove()
+    end
+    --
+    function utility:GetSubPrefix(str)
+        local str = tostring(str):gsub(" ","")
+        local var = ""
+        --
+        if #str == 2 then
+            local sec = string.sub(str,#str,#str+1)
+            var = sec == "1" and "st" or sec == "2" and "nd" or sec == "3" and "rd" or "th"
+        end
+        --
+        return var
+    end
+    --
+    function utility:Connection(connectionType, connectionCallback)
+        local connection = connectionType:Connect(connectionCallback)
+        library.connections[#library.connections + 1] = connection
+        --
+        return connection
+    end
+    --
+    function utility:Disconnect(connection)
+        for i,v in pairs(library.connections) do
+            if v == connection then
+                library.connections[i] = nil
+                v:Disconnect()
+            end
+        end
+    end
+    --
+    function utility:MouseLocation()
+        return uis:GetMouseLocation()
+    end
+    --
+    function utility:MouseOverDrawing(values, valuesAdd)
+        local valuesAdd = valuesAdd or {}
+        local values = {
+            (values[1] or 0) + (valuesAdd[1] or 0),
+            (values[2] or 0) + (valuesAdd[2] or 0),
+            (values[3] or 0) + (valuesAdd[3] or 0),
+            (values[4] or 0) + (valuesAdd[4] or 0)
+        }
+        --
+        local mouseLocation = utility:MouseLocation()
+	    return (mouseLocation.x >= values[1] and mouseLocation.x <= (values[1] + (values[3] - values[1]))) and (mouseLocation.y >= values[2] and mouseLocation.y <= (values[2] + (values[4] - values[2])))
+    end
+    --
+    function utility:GetTextBounds(text, textSize, font)
+        local textbounds = Vector2.new(0, 0)
+        --
+        local textlabel = utility:Create("TextLabel", {Vector2.new(0, 0)}, {
+            Text = text,
+            Size = textSize,
+            Font = font,
+            Hidden = true
+        })
+        --
+        textbounds = textlabel.TextBounds
+        utility:Remove(textlabel, true)
+        --
+        return textbounds
+    end
+    --
+    function utility:GetScreenSize()
+        return ws.CurrentCamera.ViewportSize
+    end
+    --
+    function utility:LoadImage(instance, imageName, imageLink)
+        local data
+        --
+        if isfile(library.folders.assets.."/"..imageName..".png") then
+            data = readfile(library.folders.assets.."/"..imageName..".png")
+        else
+            if imageLink then
+                data = game:HttpGet(imageLink)
+                writefile(library.folders.assets.."/"..imageName..".png", data)
+            else
+                return
+            end
+        end
+        --
+        if data and instance then
+            instance.Data = data
+        end
+    end
+    --
+    function utility:Lerp(instance, instanceTo, instanceTime)
+        local currentTime = 0
+        local currentIndex = {}
+        local connection
+        --
+        for i,v in pairs(instanceTo) do
+            currentIndex[i] = instance[i]
+        end
+        --
+        local function lerp()
+            for i,v in pairs(instanceTo) do
+                instance[i] = ((v - currentIndex[i]) * currentTime / instanceTime) + currentIndex[i]
+            end
+        end
+        --
+        connection = rs.RenderStepped:Connect(function(delta)
+            if currentTime < instanceTime then
+                currentTime = currentTime + delta
+                lerp()
+            else
+                connection:Disconnect()
+            end
+        end)
+    end
+    --
+    function utility:Combine(table1, table2)
+        local table3 = {}
+        for i,v in pairs(table1) do table3[i] = v end
+        local t = #table3
+        for z,x in pairs(table2) do table3[z + t] = x end
+        return table3
+    end
+    --
+    function utility:WrapText(Text, Size)
+        local Max = (Size / 7)
+        --
+        return Text:sub(0, Max)
+    end
+end
+--// desktop fixed this btw
+-- // Library Functions
+do
+    library.__index = library
+	pages.__index = pages
+	sections.__index = sections
+    --
+    function library:New(info)
+		local info = info or {}
+        local name = info.name or info.Name or info.title or info.Title or "UI Title"
+        local size = info.size or info.Size or Vector2.new(550,700)
+        local accent = info.accent or info.Accent or info.color or info.Color or theme.accent
+        --
+        theme.accent = accent
+        --
+        local window = {pages = {}, unloaded = false, isVisible = false, uibind = Enum.KeyCode.RightShift, currentPage = nil, fading = false, dragging = false, drag = Vector2.new(0,0), currentContent = {frame = nil, dropdown = nil, multibox = nil, colorpicker = nil, keybind = nil}}
+        --
+        local main_frame = utility:Create("Frame", {Vector2.new(0,0)}, {
+            Size = utility:Size(0, size.X, 0, size.Y),
+            Position = utility:Position(0.5, -(size.X/2) ,0.5, -(size.Y/2)),
+            Color = theme.outline
+        });window["main_frame"] = main_frame
+        --
+        library.colors[main_frame] = {
+            Color = "outline"
+        }
+        --
+        local frame_inline = utility:Create("Frame", {Vector2.new(1,1), main_frame}, {
+            Size = utility:Size(1, -2, 1, -2, main_frame),
+            Position = utility:Position(0, 1, 0, 1, main_frame),
+            Color = theme.lightcontrast
+        })
+        --
+        library.colors[frame_inline] = {
+            Color = "lightcontrast"
+        }
+        --
+        local inner_frame = utility:Create("Frame", {Vector2.new(1,1), frame_inline}, {
+            Size = utility:Size(1, -2, 1, -2, frame_inline),
+            Position = utility:Position(0, 1, 0, 1, frame_inline),
+            Color = theme.lightcontrast
+        })
+        --
+        library.colors[inner_frame] = {
+            Color = "lightcontrast"
+        }
+        --
+        local title = utility:Create("TextLabel", {Vector2.new(4,2), inner_frame}, {
+            Text = name,
+            Size = theme.textsize,
+            Font = theme.font,
+            Color = theme.textcolor,
+            OutlineColor = theme.textborder,
+            Position = utility:Position(0, 4, 0, 2, inner_frame)
+        })
+        --
+        library.colors[title] = {
+            OutlineColor = "textborder",
+            Color = "textcolor"
+        }
+        --
+        local inner_frame_inline = utility:Create("Frame", {Vector2.new(4,18), inner_frame}, {
+            Size = utility:Size(1, -8, 1, -22, inner_frame),
+            Position = utility:Position(0, 4, 0, 18, inner_frame),
+            Color = theme.inline
+        })
+        --
+        library.colors[inner_frame_inline] = {
+            Color = "inline"
+        }
+        --
+        local inner_frame_inline2 = utility:Create("Frame", {Vector2.new(1,1), inner_frame_inline}, {
+            Size = utility:Size(1, -2, 1, -2, inner_frame_inline),
+            Position = utility:Position(0, 1, 0, 1, inner_frame_inline),
+            Color = theme.outline
+        })
+        --
+        library.colors[inner_frame_inline2] = {
+            Color = "outline"
+        }
+        --
+        local back_frame = utility:Create("Frame", {Vector2.new(1,1), inner_frame_inline2}, {
+            Size = utility:Size(1, -2, 1, -2, inner_frame_inline2),
+            Position = utility:Position(0, 1, 0, 1, inner_frame_inline2),
+            Color = theme.darkcontrast
+        });window["back_frame"] = back_frame
+        --
+        library.colors[back_frame] = {
+            Color = "darkcontrast"
+        }
+        --
+        local tab_frame_inline = utility:Create("Frame", {Vector2.new(4,24), back_frame}, {
+            Size = utility:Size(1, -8, 1, -28, back_frame),
+            Position = utility:Position(0, 4, 0, 24, back_frame),
+            Color = theme.outline
+        })
+        --
+        library.colors[tab_frame_inline] = {
+            Color = "outline"
+        }
+        --
+        local tab_frame_inline2 = utility:Create("Frame", {Vector2.new(1,1), tab_frame_inline}, {
+            Size = utility:Size(1, -2, 1, -2, tab_frame_inline),
+            Position = utility:Position(0, 1, 0, 1, tab_frame_inline),
+            Color = theme.inline
+        })
+        --
+        library.colors[tab_frame_inline2] = {
+            Color = "inline"
+        }
+        --
+        local tab_frame = utility:Create("Frame", {Vector2.new(1,1), tab_frame_inline2}, {
+            Size = utility:Size(1, -2, 1, -2, tab_frame_inline2),
+            Position = utility:Position(0, 1, 0, 1, tab_frame_inline2),
+            Color = theme.lightcontrast
+        });window["tab_frame"] = tab_frame
+        --
+        library.colors[tab_frame] = {
+            Color = "lightcontrast"
+        }
+        --
+        function window:GetConfig()
+            local config = {}
+            --
+            if not pcall(function()
+                for i,v in pairs(library.pointers) do
+                    if type(v:get()) == "table" and v:get().Transparency then
+                        local hue, sat, val = v:get().Color:ToHSV()
+                        config[i] = {Color = {hue, sat, val}, Transparency = v:get().Transparency}
+                    elseif v.keybindname then
+                        local key, mode = v:get(), v.mode
+                        config[i] = {Key = key, Mode = mode}
+                    elseif typeof(v:get()) == "Color3" then
+                        local hue, sat, val = v:get():ToHSV()
+                        config[i] = {Color = {hue, sat, val}, Transparency = v.current[4] or 1}
+                    else
+                        config[i] = v:get()
+                    end
+                end
+            end) then
+            end
+            --
+            return hs:JSONEncode(config)
+        end
+        --
+        function window:ChangeUIBind(new_uibind)
+            window.uibind = new_uibind
+        end
+        --
+        function window:Retitle(new_name)
+            title.Text = new_name
+            name = new_name
+        end
+        --
+        function window:LoadConfig(config)
+            local config = hs:JSONDecode(config)
+            --
+            for i,v in next, config do
+                if library.pointers[i] then
+                    library.pointers[i]:set(v)
+                end
+            end
+        end
+        --
+        function wind
